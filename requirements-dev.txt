@@ -1,0 +1,5 @@
+black==21.12b0
+flake8
+isort
+danger-python==0.1.0
+click==7.1.2
