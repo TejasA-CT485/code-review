@@ -4,10 +4,12 @@ from danger_python.plugins import git, markdown, fail
 # Get changed .py files in the PR
 changed_files = git.modified_files() + git.created_files()
 py_files = [f for f in changed_files if f.endswith(".py")]
+print("Danger file execution started...")
 
 if not py_files:
     markdown("✅ No Python files changed.")
 else:
+    markdown(f"Changing Python files: {py_files}")
     issues = []
 
     # Run flake8
