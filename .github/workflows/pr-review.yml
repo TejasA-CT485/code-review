@@ -1,8 +1,9 @@
-name: Python Lint and Unused Variable Check
+name: Python code check
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - main
 
 jobs:
   lint-and-check-unused-vars:

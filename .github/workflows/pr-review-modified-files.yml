@@ -1,0 +1,62 @@
+name: Python code check
+
+on:
+  pull_request:
+    branches: 
+      - main
+    types: [opened, synchronize, reopened]
+
+jobs:
+  lint-and-check-unused-vars:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'  # or your preferred version
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 vulture
+
+    - name: Get list of modified Python files
+      id: get_modified_files
+      run: |
+        git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -E '\.py$' > modified_files.txt
+        cat modified_files.txt
+        echo "::set-output name=files::$(cat modified_files.txt)"
+
+    - name: Run flake8 for linting on modified files
+      run: |
+        echo "Running flake8 on modified files..."
+        files="${{ steps.get_modified_files.outputs.files }}"
+        if [ -z "$files" ]; then
+          echo "No Python files modified, skipping flake8."
+        else
+          flake8 $files --ignore=E501 --exit-zero > flake8.log
+          cat flake8.log
+          if [ -s flake8.log ]; then
+            echo "Linting issues found!"
+            exit 1
+          fi
+        fi
+
+    - name: Run vulture for unused code on modified files
+      run: |
+        echo "Running vulture on modified files..."
+        files="${{ steps.get_modified_files.outputs.files }}"
+        if [ -z "$files" ]; then
+          echo "No Python files modified, skipping vulture."
+        else
+          vulture $files > vulture.log || true
+          cat vulture.log
+          if [ -s vulture.log ]; then
+            echo "Unused code detected!"
+            exit 1
+          fi
+        fi
