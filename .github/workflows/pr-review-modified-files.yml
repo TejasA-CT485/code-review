@@ -24,41 +24,37 @@ jobs:
         python -m pip install --upgrade pip
         pip install flake8 vulture
 
-    - name: Get list of modified Python files
+    - name: Get modified files
       id: get_modified_files
       run: |
-        git fetch origin ${{ github.base_ref }} # Fetch base branch to ensure we have the full commit history
-        git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -E '\.py$' > modified_files.txt
-        cat modified_files.txt
-        echo "::set-output name=files::$(cat modified_files.txt)"
-
+        # Get list of modified Python files in the current PR
+        modified_files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '\.py$' || true)
+        echo "modified_files=$modified_files" >> $GITHUB_ENV
 
     - name: Run flake8 for linting on modified files
       run: |
-        echo "Running flake8 on modified files..."
-        files="${{ steps.get_modified_files.outputs.files }}"
-        if [ -z "$files" ]; then
-          echo "No Python files modified, skipping flake8."
-        else
-          flake8 $files --ignore=E501 --exit-zero > flake8.log
+        if [ -n "$modified_files" ]; then
+          echo "Running flake8 on modified files..."
+          flake8 $modified_files --ignore=E501 --exit-zero > flake8.log
           cat flake8.log
           if [ -s flake8.log ]; then
             echo "Linting issues found!"
             exit 1
           fi
+        else
+          echo "No Python files modified, skipping flake8."
         fi
 
     - name: Run vulture for unused code on modified files
       run: |
-        echo "Running vulture on modified files..."
-        files="${{ steps.get_modified_files.outputs.files }}"
-        if [ -z "$files" ]; then
-          echo "No Python files modified, skipping vulture."
-        else
-          vulture $files > vulture.log || true
+        if [ -n "$modified_files" ]; then
+          echo "Running vulture on modified files..."
+          vulture $modified_files > vulture.log || true
           cat vulture.log
           if [ -s vulture.log ]; then
             echo "Unused code detected!"
             exit 1
           fi
+        else
+          echo "No Python files modified, skipping vulture."
         fi
