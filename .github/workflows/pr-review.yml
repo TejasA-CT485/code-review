@@ -20,7 +20,8 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements-dev.txt
+          pip install danger-python flake8 black isort
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Run Danger
         env:
