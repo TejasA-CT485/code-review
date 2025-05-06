@@ -1,4 +1,4 @@
-name: Python code check
+name: Branch Code Review
 
 on:
   push:
