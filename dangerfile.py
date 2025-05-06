@@ -1,6 +1,8 @@
 import subprocess
 from danger_python.plugins import git, markdown, fail
 
+print("dangerfile execution1")
+markdown(f"🧪 danger file execution : {py_files}")
 # Get changed .py files in the PR
 changed_files = git.modified_files() + git.created_files()
 py_files = [f for f in changed_files if f.endswith(".py")]
