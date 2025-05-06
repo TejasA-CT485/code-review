@@ -1,4 +1,4 @@
-name: Python PR Check
+name: Pull Request Review
 
 on:
   pull_request:
