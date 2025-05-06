@@ -1,41 +1,72 @@
-- name: Install dependencies
-  run: |
-    python -m pip install --upgrade pip
-    pip install flake8 vulture
+name: Python Lint and Unused Variable Check
 
-- name: Run lint and unused checks
-  id: lint
-  run: |
-    echo "Running flake8..."
-    flake8 . --ignore=E501 --exit-zero > flake8.log
-    echo "Running vulture..."
-    vulture . > vulture.log || true
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
 
-    cat flake8.log
-    cat vulture.log
+jobs:
+  lint-and-check-unused-vars:
+    runs-on: ubuntu-latest
 
-    # Combine logs
-    echo "### :x: CI Failed due to linting or unused code" > pr_comment.md
-    echo "" >> pr_comment.md
-    echo "#### Flake8 Lint Report:" >> pr_comment.md
-    echo '```' >> pr_comment.md
-    cat flake8.log >> pr_comment.md
-    echo '```' >> pr_comment.md
-    echo "" >> pr_comment.md
-    echo "#### Vulture Unused Code Report:" >> pr_comment.md
-    echo '```' >> pr_comment.md
-    cat vulture.log >> pr_comment.md
-    echo '```' >> pr_comment.md
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-    # Determine if we should fail
-    if [ -s flake8.log ] || [ -s vulture.log ]; then
-      echo "CI_FAILED=true" >> $GITHUB_ENV
-    fi
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'  # or your preferred version
 
-- name: Post PR comment if failed
-  if: env.CI_FAILED == 'true'
-  env:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  run: |
-    gh pr comment ${{ github.event.pull_request.number }} --body-file pr_comment.md
-    exit 1  # Make sure the job fails
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 vulture
+
+        - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 vulture
+
+    - name: Install GitHub CLI
+      uses: cli/cli-action@v2
+
+    - name: Run lint and unused checks
+      id: lint
+      run: |
+        echo "Running flake8..."
+        flake8 . --ignore=E501 --exit-zero > flake8.log
+        echo "Running vulture..."
+        vulture . > vulture.log || true
+
+        cat flake8.log
+        cat vulture.log
+
+        # Combine logs
+        echo "### :x: CI Failed due to linting or unused code" > pr_comment.md
+        echo "" >> pr_comment.md
+        echo "#### Flake8 Lint Report:" >> pr_comment.md
+        echo '```' >> pr_comment.md
+        cat flake8.log >> pr_comment.md
+        echo '```' >> pr_comment.md
+        echo "" >> pr_comment.md
+        echo "#### Vulture Unused Code Report:" >> pr_comment.md
+        echo '```' >> pr_comment.md
+        cat vulture.log >> pr_comment.md
+        echo '```' >> pr_comment.md
+
+        # Determine if we should fail
+        if [ -s flake8.log ] || [ -s vulture.log ]; then
+          echo "CI_FAILED=true" >> $GITHUB_ENV
+        fi
+
+
+    - name: Post PR comment if failed
+      if: env.CI_FAILED == 'true'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        gh pr comment ${{ github.event.pull_request.number }} --body-file pr_comment.md
+        exit 1
+
+
+
