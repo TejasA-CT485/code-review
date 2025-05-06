@@ -2,7 +2,7 @@ name: Python Lint and Unused Variable Check
 
 on:
   pull_request:
-    branches: [main]  # adjust if you use a different default branch
+    types: [opened, synchronize, reopened]
 
 jobs:
   lint-and-check-unused-vars:
