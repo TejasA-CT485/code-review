@@ -19,6 +19,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          pip install danger-python==0.1.0
           pip install -r requirements-dev.txt
 
       - name: Run Danger
