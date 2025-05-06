@@ -24,6 +24,7 @@ jobs:
     
     - name: Run dangerfile
       run : |
+        cd ..
         python dangerfile.py
 
     - name: Run flake8 for linting
