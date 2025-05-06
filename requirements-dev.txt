@@ -1,5 +1,5 @@
-black==21.12b0
+black
 flake8
 isort
-danger-python==0.1.0
-click==7.1.2
+danger-python
+click
