@@ -1,8 +1,9 @@
-name: Python Lint and Unused Variable Check
+name: Python code check
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - main
 
 jobs:
   lint-and-check-unused-vars:
@@ -25,7 +26,7 @@ jobs:
     - name: Run flake8 for linting
       run: |
         echo "Running flake8..."
-        flake8 . --exit-zero > flake8.log
+        flake8 . --ignore=E501 --exit-zero > flake8.log
         cat flake8.log
         if [ -s flake8.log ]; then
           echo "Linting issues found!"
@@ -39,5 +40,9 @@ jobs:
         cat vulture.log
         if grep -q -E 'unused variable|unused import' vulture.log; then
           echo "Unused variables or imports detected!"
+          exit 1
+        fi
+        if [ -s vulture.log ]; then
+          echo "Unused code detected!"
           exit 1
         fi

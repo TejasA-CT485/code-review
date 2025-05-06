@@ -13,6 +13,7 @@ markdown(f"🧪 Changed Python files: {py_files}")
 if not py_files:
     markdown("✅ No Python files changed.")
 else:
+    print("🔍 Checking for linting and formatting issues...")
     issues = []
 
     # Run flake8
