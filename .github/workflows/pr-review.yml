@@ -1,30 +1,43 @@
-name: Python PR Review
+name: Python Lint and Unused Variable Check
 
 on:
   pull_request:
     types: [opened, synchronize, reopened]
 
 jobs:
-  review:
+  lint-and-check-unused-vars:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'  # or your preferred version
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install danger-python flake8 black isort
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 vulture
 
-      - name: Run Danger
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          danger ci
+    - name: Run flake8 for linting
+      run: |
+        echo "Running flake8..."
+        flake8 . --exit-zero > flake8.log
+        cat flake8.log
+        if [ -s flake8.log ]; then
+          echo "Linting issues found!"
+          exit 1
+        fi
+
+    - name: Run vulture for unused code
+      run: |
+        echo "Running vulture..."
+        vulture . > vulture.log || true
+        cat vulture.log
+        if grep -q -E 'unused variable|unused import' vulture.log; then
+          echo "Unused variables or imports detected!"
+          exit 1
+        fi

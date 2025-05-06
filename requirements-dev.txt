@@ -1,5 +1,5 @@
 black==21.12b0
-flake8
-isort
+flake8==4.0.1
+isort==5.10.1
 danger-python==0.1.0
 click==7.1.2
