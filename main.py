@@ -1,11 +1,7 @@
-
-import os
-import sys
-import re  # ❌ unused import
-
-import json  # ❌ import order issue
+def greet2():
+    print("Hello, world")
 
 def greet(name):
-    print(  f"Hello, {name}"  )  # ❌ bad formatting (spacing)
+    print(f"Hello, {name}")
 
 greet("world")
