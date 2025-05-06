@@ -22,13 +22,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install flake8 vulture
 
-    - name: Install GitHub CLI
-      run: |
-        sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
-        sudo apt-add-repository https://cli.github.com/packages
-        sudo apt update
-        sudo apt install gh -y
-
     - name: Run lint and unused code checks
       id: check
       run: |
@@ -61,5 +54,6 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
+        echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
         gh pr comment ${{ github.event.pull_request.number }} --body-file pr_comment.md
         exit 1
