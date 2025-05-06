@@ -1,23 +1,23 @@
 import subprocess
 from danger_python.plugins import git, markdown, fail
 
-print("dangerfile execution1")
-markdown(f"🧪 danger file execution : {py_files}")
+print("⚙️ Running dangerfile.py...")
+
 # Get changed .py files in the PR
 changed_files = git.modified_files() + git.created_files()
 py_files = [f for f in changed_files if f.endswith(".py")]
 
-markdown(f"🧪 Changed Python files detected: {py_files}")
+print(f"📂 Changed Python files: {py_files}")
+markdown(f"🧪 Changed Python files: {py_files}")
 
 if not py_files:
     markdown("✅ No Python files changed.")
 else:
-    markdown(f"Changing Python files: {py_files}")
-
     issues = []
 
     # Run flake8
     try:
+        print("🚨 Running flake8...")
         flake8_output = subprocess.check_output(["flake8"] + py_files, stderr=subprocess.STDOUT).decode()
         if flake8_output:
             issues.append("### ❌ Flake8 Issues:\n```\n" + flake8_output + "\n```")
@@ -28,6 +28,7 @@ else:
 
     # Run black --check
     try:
+        print("🎨 Running black --check...")
         subprocess.check_output(["black", "--check"] + py_files, stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as e:
         output = e.output.decode()
@@ -35,6 +36,7 @@ else:
 
     # Run isort --check
     try:
+        print("🧹 Running isort --check-only...")
         subprocess.check_output(["isort", "--check-only"] + py_files, stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as e:
         output = e.output.decode()
